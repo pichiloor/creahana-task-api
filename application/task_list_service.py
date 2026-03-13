@@ -11,7 +11,16 @@ class TaskListService:
         self.task_repo = TaskRepository(db)
 
     def get_all(self, owner_id: int):
-        return self.task_list_repo.get_all_by_owner(owner_id)
+        lists = self.task_list_repo.get_all_by_owner(owner_id)
+        # Attach completion_percentage to each list before returning.
+        for task_list in lists:
+            tasks = self.task_repo.get_all_by_task_list(task_list.id)
+            if not tasks:
+                task_list.completion_percentage = 0.0
+            else:
+                done = sum(1 for t in tasks if t.status.value == "done")
+                task_list.completion_percentage = round((done / len(tasks)) * 100, 2)
+        return lists
 
     def get_by_id(self, task_list_id: int, owner_id: int):
         task_list = self.task_list_repo.get_by_id(task_list_id)
@@ -19,6 +28,13 @@ class TaskListService:
             raise TaskListNotFoundError(task_list_id)
         if task_list.owner_id != owner_id:
             raise ForbiddenError()
+        # Attach completion_percentage before returning.
+        tasks = self.task_repo.get_all_by_task_list(task_list_id)
+        if not tasks:
+            task_list.completion_percentage = 0.0
+        else:
+            done = sum(1 for t in tasks if t.status.value == "done")
+            task_list.completion_percentage = round((done / len(tasks)) * 100, 2)
         return task_list
 
     def create(self, title: str, description: str, owner_id: int):

@@ -9,7 +9,9 @@ def test_get_all_tasks_success(client, auth_headers, task_list_id):
         f"/lists/{task_list_id}/tasks/", headers=auth_headers
     )
     assert resp.status_code == 200
-    assert isinstance(resp.json(), list)
+    data = resp.json()
+    assert "tasks" in data
+    assert isinstance(data["tasks"], list)
 
 
 def test_get_all_tasks_no_token(client, auth_headers, task_list_id):

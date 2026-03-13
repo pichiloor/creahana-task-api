@@ -35,6 +35,9 @@ class TaskListORM(Base):
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
     )
 
+    # Not stored in DB — calculated at runtime and attached by the service.
+    completion_percentage: float = 0.0
+
     owner: Mapped["UserORM"] = relationship("UserORM", back_populates="task_lists")
     tasks: Mapped[list["TaskORM"]] = relationship(
         "TaskORM", back_populates="task_list", cascade="all, delete-orphan"

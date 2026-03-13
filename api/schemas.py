@@ -38,6 +38,7 @@ class TaskListResponse(BaseModel):
     title: str
     description: str | None
     owner_id: int
+    completion_percentage: float = 0.0
     created_at: datetime
     updated_at: datetime
 
@@ -70,5 +71,5 @@ class TaskResponse(BaseModel):
     updated_at: datetime
 
 
-class TaskWithCompletionResponse(TaskResponse):
-    completion_percentage: float
+class TaskListTasksResponse(BaseModel):
+    tasks: list[TaskResponse]

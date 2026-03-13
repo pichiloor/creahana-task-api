@@ -130,6 +130,26 @@ PATCH /lists/{task_list_id}/tasks/{task_id}/status
 
 `status` can be: `pending`, `in_progress`, or `done`.
 
+### Step 6 — List tasks with filters and completion percentage
+
+```
+GET /lists/{task_list_id}/tasks/
+GET /lists/{task_list_id}/tasks/?status_filter=done
+GET /lists/{task_list_id}/tasks/?priority=high
+```
+
+The response includes the completion percentage of the list and the list of tasks:
+
+```json
+{
+  "completion_percentage": 50.0,
+  "tasks": [
+    { "id": 1, "title": "Task 1", "status": "done", ... },
+    { "id": 2, "title": "Task 2", "status": "pending", ... }
+  ]
+}
+```
+
 ---
 
 ## Run the tests

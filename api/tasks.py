@@ -2,9 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from api.deps import get_current_user
-from api.schemas import (TaskRequest, TaskResponse, TaskStatusRequest,
-                         TaskWithCompletionResponse)
-from application.task_list_service import TaskListService
+from api.schemas import (TaskListTasksResponse, TaskRequest, TaskResponse,
+                         TaskStatusRequest)
 from application.task_service import TaskService
 from domain.exceptions import ForbiddenError, TaskNotFoundError
 from domain.models import TaskPriority, TaskStatus
@@ -14,7 +13,7 @@ from infrastructure.models_orm import UserORM
 router = APIRouter(prefix="/lists/{task_list_id}/tasks", tags=["tasks"])
 
 
-@router.get("/", response_model=list[TaskWithCompletionResponse])
+@router.get("/", response_model=TaskListTasksResponse)
 def get_all(
     task_list_id: int,
     status_filter: TaskStatus | None = None,
@@ -29,16 +28,7 @@ def get_all(
             status=status_filter,
             priority=priority,
         )
-        percentage = TaskListService(db).get_completion_percentage(
-            task_list_id=task_list_id,
-            owner_id=current_user.id,
-        )
-        return [
-            TaskWithCompletionResponse(
-                **task.__dict__, completion_percentage=percentage
-            )
-            for task in tasks
-        ]
+        return TaskListTasksResponse(tasks=tasks)
     except ForbiddenError as e:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
 
